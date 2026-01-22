@@ -1,23 +1,36 @@
 # Smart Data Pipeline Auto-Adaptatif
 
-Projet de Fin d'Études (PFE)
-
 ## Description
-Ce projet vise à concevoir un pipeline de données intelligent et auto-adaptatif
-capable de gérer efficacement des flux de données dynamiques tout en respectant
-les contraintes de performance (latence, débit, SLA/SLO).
+Ce projet s’inscrit dans le cadre du Projet de Fin d’Études (PFE).  
+Il vise à concevoir et implémenter un pipeline intelligent de traitement de données capable de s’auto-adapter dynamiquement en fonction des performances observées et des caractéristiques des flux de données.
 
 ## Objectifs
-- Ingestion de données en continu
-- Traitement intelligent des flux
-- Monitoring des performances
-- Adaptation automatique du pipeline
+- Concevoir une architecture modulaire de pipeline de données
+- Implémenter un pipeline de base (ingestion → traitement → stockage → visualisation)
+- Introduire un mécanisme d’auto-adaptation basé sur le monitoring
+- Améliorer la performance et la robustesse du traitement des données
 
-## Équipe
-- Samah Boudallaa
-- Chaymae El Bahloul
-- Khadija El Basri
+## Architecture Générale
+Le pipeline est composé des étapes suivantes :
+1. Data Sources
+2. Data Ingestion
+3. Data Preprocessing
+4. Data Processing
+5. Auto-Adaptation & Monitoring
+6. Data Storage
+7. Visualization & Reporting
 
-## Statut
-Projet en cours de développement.
+## Technologies (évolutif)
+- Python
+- Git & GitHub
+- Outils de visualisation
+- Technologies Big Data (à intégrer ultérieurement)
+
+## État du Projet
+-  Partie recherche terminée
+-  Architecture du pipeline définie
+-  Structure du code mise en place
+-  Implémentation en cours
+-  Auto-adaptation avancée à venir
+
 
