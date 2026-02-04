@@ -1,6 +1,10 @@
 from kafka import KafkaConsumer
 import json
 
+from preprocessing import preprocess
+from processing import process
+from storage import store
+
 consumer = KafkaConsumer(
     'pfe-data',
     bootstrap_servers='localhost:9092',
@@ -9,8 +13,15 @@ consumer = KafkaConsumer(
     value_deserializer=lambda x: json.loads(x.decode('utf-8'))
 )
 
-print("Consumer démarré...")
+print("Consumer + Pipeline démarré...")
 
 for message in consumer:
-    data = message.value
-    print("Message reçu :", data)
+    raw_data = message.value
+    print("Reçu :", raw_data)
+
+    data = preprocess(raw_data)
+    if data is None:
+        continue
+
+    data = process(data)
+    store(data)
