@@ -1,27 +1,21 @@
 from kafka import KafkaConsumer
 import json
-
-from preprocessing import preprocess
-from processing import process
-from storage import store
+from src.processing import process_with_spark
 
 consumer = KafkaConsumer(
     'pfe-data',
     bootstrap_servers='localhost:9092',
     auto_offset_reset='earliest',
     enable_auto_commit=True,
+    group_id='pfe-group',
     value_deserializer=lambda x: json.loads(x.decode('utf-8'))
 )
 
-print("Consumer + Pipeline démarré...")
+print("Consumer Kafka démarré (ingestion uniquement)...")
 
 for message in consumer:
-    raw_data = message.value
-    print("Reçu :", raw_data)
+    data = message.value
+    print(f"\nMessage reçu depuis Kafka : {data}")
 
-    data = preprocess(raw_data)
-    if data is None:
-        continue
+    process_with_spark(data)
 
-    data = process(data)
-    store(data)

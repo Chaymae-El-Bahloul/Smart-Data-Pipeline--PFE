@@ -10,14 +10,14 @@ producer = KafkaProducer(
 data_stream = [
     {"id": 1, "value": 120},
     {"id": 2, "value": 340},
-    {"id": 3, "value": 560},
-    {"id": 4, "value": 890}
+    {"id": 3, "value": 560}
 ]
 
 for record in data_stream:
-    producer.send('pfe-data', record)
+    producer.send("pfe-data", record)
     print("Message envoyé :", record)
     time.sleep(1)
 
 producer.flush()
 producer.close()
+

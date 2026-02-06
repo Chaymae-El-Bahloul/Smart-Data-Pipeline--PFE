@@ -1,3 +1,4 @@
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -205,3 +206,50 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# ======================
+# Virtual environments
+# ======================
+venv/
+venv-kafka/
+
+# ======================
+# Python cache
+# ======================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ======================
+# Spark / Kafka local files
+# ======================
+spark-warehouse/
+metastore_db/
+derby.log
+
+# ======================
+# Logs & runtime files
+# ======================
+*.log
+logs/
+
+# ======================
+# OS files
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# Environment variables
+# ======================
+.env
+
+# ======================
+# IDE / editor files
+# ======================
+.vscode/
+.idea/
+
+
