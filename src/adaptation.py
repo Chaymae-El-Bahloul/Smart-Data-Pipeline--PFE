@@ -1,15 +1,12 @@
-THRESHOLD = 300
+THRESHOLD = 25
 
-def choose_processing_mode(data: dict) -> str:
-    """
-    Décide du mode de traitement selon la charge
-    """
+def select_processing_mode(data: dict) -> str:
     value = data.get("value", 0)
 
     if value < THRESHOLD:
-        print(" Mode NORMAL sélectionné")
+        print("Mode NORMAL sélectionné")
         return "NORMAL"
     else:
-        print(" Mode HAUTE CHARGE sélectionné (auto-adaptation)")
+        print("Mode HIGH_LOAD sélectionné (auto-adaptation)")
         return "HIGH_LOAD"
 
