@@ -1,159 +1,227 @@
 import streamlit as st
 import json
 import pandas as pd
-import os
 import time
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import os
 
 st.set_page_config(layout="wide")
+
+# ======================
+# THEME SELECTOR
+# ======================
+
+theme_mode = st.sidebar.selectbox("Mode d'affichage", ["Sombre", "Clair"])
+
+if theme_mode == "Sombre":
+    bg_color = "#0E1117"
+    card_bg = "#1C1F26"
+    text_color = "white"
+    border_color = "#2A2D34"
+    plot_bg = "#1C1F26"
+    axis_color = "white"
+else:
+    bg_color = "#FFFFFF"
+    card_bg = "#F3F6FA"
+    text_color = "#111111"
+    border_color = "#E0E0E0"
+    plot_bg = "#FFFFFF"
+    axis_color = "black"
+
+st.markdown(f"""
+<style>
+body {{
+    background-color: {bg_color};
+}}
+
+.card {{
+    background-color: {card_bg};
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid {border_color};
+    text-align: center;
+}}
+
+.card h2 {{
+    margin: 0;
+    font-size: 30px;
+    color: {text_color};
+}}
+
+.card p {{
+    margin: 6px 0 0 0;
+    font-size: 14px;
+    color: {text_color};
+}}
+</style>
+""", unsafe_allow_html=True)
 
 st.title("Smart IoT Adaptive AI Monitoring")
 st.markdown("---")
 
 history_file = "data/history.json"
 
-# =====================
-# SIDEBAR
-# =====================
-
-st.sidebar.header("Configuration")
+# ======================
+# SIDEBAR CONFIG
+# ======================
 
 limit_points = st.sidebar.slider("Points affichés", 50, 500, 200)
 
-if st.sidebar.button("Reset Historique"):
+time_value = st.sidebar.number_input("Fréquence de mise à jour", min_value=1, value=10)
+time_unit = st.sidebar.selectbox("Unité", ["Secondes", "Minutes", "Heures"])
+
+if time_unit == "Secondes":
+    refresh_rate = time_value
+elif time_unit == "Minutes":
+    refresh_rate = time_value * 60
+else:
+    refresh_rate = time_value * 3600
+
+st.sidebar.markdown("---")
+
+# ======================
+# RESET WITH CONFIRMATION
+# ======================
+
+if "confirm_reset" not in st.session_state:
+    st.session_state.confirm_reset = False
+
+if "reset_done" not in st.session_state:
+    st.session_state.reset_done = False
+
+if st.sidebar.button("Réinitialiser les données"):
+    st.session_state.confirm_reset = True
+
+if st.session_state.confirm_reset:
+    st.sidebar.warning("⚠ Voulez-vous vraiment supprimer toutes les données ?")
+
+    col1, col2 = st.sidebar.columns(2)
+
+    if col1.button("Confirmer"):
+        with open(history_file, "w") as f:
+            json.dump([], f)
+        st.session_state.confirm_reset = False
+        st.session_state.reset_done = True
+        st.rerun()
+
+    if col2.button("Annuler"):
+        st.session_state.confirm_reset = False
+
+if st.session_state.reset_done:
+    st.sidebar.success("Historique supprimé avec succès.")
+    st.session_state.reset_done = False
+
+# ======================
+# LOAD DATA
+# ======================
+
+if not os.path.exists(history_file):
+    os.makedirs("data", exist_ok=True)
     with open(history_file, "w") as f:
         json.dump([], f)
-    st.sidebar.success("Historique réinitialisé")
 
-placeholder = st.empty()
+try:
+    with open(history_file, "r") as f:
+        history = json.load(f)
+except:
+    history = []
 
-while True:
+if len(history) > 0:
 
-    try:
-        with open(history_file, "r") as f:
-            history = json.load(f)
-    except:
-        history = []
+    df = pd.DataFrame(history)
+    df["moving_avg"] = df["temperature"].rolling(5).mean()
+    df_recent = df.tail(limit_points)
 
-    if len(history) > 0:
+    anomaly_rate = (df["anomaly"].sum() / len(df)) * 100
+    mean_temp = df["temperature"].mean()
+    ai_score = 100 - anomaly_rate
+    dominant_engine = df["engine"].mode()[0]
 
-        df = pd.DataFrame(history)
+    # ================= KPIs =================
 
-        df["moving_avg"] = df["temperature"].rolling(5).mean()
+    st.header("Indicateurs Clés")
 
-        df_recent = df.tail(limit_points)
+    c1, c2, c3, c4 = st.columns(4)
 
-        anomaly_rate = (df["anomaly"].sum() / len(df)) * 100
+    c1.markdown(f"<div class='card'><h2>{len(df)}</h2><p>Total Messages</p></div>", unsafe_allow_html=True)
+    c2.markdown(f"<div class='card'><h2>{round(mean_temp,2)}°C</h2><p>Température Moyenne</p></div>", unsafe_allow_html=True)
+    c3.markdown(f"<div class='card'><h2>{round(anomaly_rate,2)}%</h2><p>Anomalies IA</p></div>", unsafe_allow_html=True)
+    c4.markdown(f"<div class='card'><h2>{dominant_engine}</h2><p>Moteur Dominant</p></div>", unsafe_allow_html=True)
 
-        # ===== Score IA simple (normalisation)
-        ai_score = np.clip(
-            (df["temperature"].mean() / 40) * 100,
-            0, 100
-        )
+    st.markdown("---")
 
-        with placeholder.container():
+    # ================= COURBE =================
 
-            # ================= KPIs =================
-            st.header("KPIs Intelligents")
+    st.header("Evolution Température")
 
-            col1, col2, col3, col4 = st.columns(4)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(y=df_recent["temperature"], mode='lines', name='Température'))
+    fig.add_trace(go.Scatter(y=df_recent["moving_avg"], mode='lines', name='Moyenne glissante', line=dict(dash='dash')))
 
-            col1.metric("Messages", len(df))
-            col2.metric("Temp Moyenne", round(df["temperature"].mean(), 2))
+    fig.update_layout(height=400, plot_bgcolor=plot_bg, paper_bgcolor=plot_bg, font=dict(color=axis_color))
+    st.plotly_chart(fig, use_container_width=True)
 
-            if anomaly_rate > 20:
-                col3.error(f"Taux Anomalie: {round(anomaly_rate,2)}%")
-            else:
-                col3.success(f"Taux Anomalie: {round(anomaly_rate,2)}%")
+    st.markdown("---")
 
-            col4.metric("Moteur Dominant", df["engine"].mode()[0])
+    # ================= SCORE IA =================
 
-            st.markdown("---")
+    st.header("Score IA Global")
 
-            # ================= Gauge IA =================
-            st.header("Score IA Global")
+    if ai_score < 50:
+        color = "red"
+    elif ai_score < 80:
+        color = "orange"
+    else:
+        color = "green"
 
-            fig_gauge = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=ai_score,
-                title={'text': "AI Stability Score"},
-                gauge={
-                    'axis': {'range': [0, 100]},
-                    'bar': {'thickness': 0.3},
-                    'steps': [
-                        {'range': [0, 40], 'color': "red"},
-                        {'range': [40, 70], 'color': "orange"},
-                        {'range': [70, 100], 'color': "green"},
-                    ],
-                }
-            ))
+    fig_gauge = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=ai_score,
+        number={'suffix': " /100"},
+        gauge={'axis': {'range': [0, 100]}, 'bar': {'color': color}}
+    ))
 
-            st.plotly_chart(fig_gauge, use_container_width=True)
+    fig_gauge.update_layout(height=350, plot_bgcolor=plot_bg, paper_bgcolor=plot_bg, font=dict(color=axis_color))
+    st.plotly_chart(fig_gauge, use_container_width=True)
 
-            st.markdown("---")
+    st.markdown("---")
 
-            # ================= Animation Courbe =================
-            st.header("Evolution Température (Temps Réel)")
+    # ================= HEATMAP =================
 
-            fig = go.Figure()
+    st.header("Heatmap des anomalies")
 
-            fig.add_trace(go.Scatter(
-                y=df_recent["temperature"],
-                mode='lines',
-                name='Température',
-            ))
+    df["anomaly_numeric"] = df["anomaly"].astype(int)
 
-            fig.add_trace(go.Scatter(
-                y=df_recent["moving_avg"],
-                mode='lines',
-                name='Moyenne Glissante',
-                line=dict(dash='dash')
-            ))
+    heatmap = px.density_heatmap(
+        df,
+        x=df.index,
+        y="temperature",
+        z="anomaly_numeric",
+        nbinsx=30,
+        color_continuous_scale="Viridis"
+    )
 
-            fig.add_hline(y=30, line_dash="dot")
+    heatmap.update_layout(height=400, plot_bgcolor=plot_bg, paper_bgcolor=plot_bg, font=dict(color=axis_color))
+    st.plotly_chart(heatmap, use_container_width=True)
 
-            fig.update_layout(height=400)
+    st.markdown("---")
 
-            st.plotly_chart(fig, use_container_width=True)
+    # ================= MOTEURS =================
 
-            st.markdown("---")
+    st.header("Répartition des moteurs")
 
-            # ================= Heatmap Anomalies =================
-            st.header("Heatmap Anomalies")
+    engine_counts = df["engine"].value_counts().reset_index()
+    engine_counts.columns = ["Moteur", "Count"]
 
-            df["anomaly_numeric"] = df["anomaly"].astype(int)
+    engine_fig = px.bar(engine_counts, x="Moteur", y="Count", text_auto=True, color="Moteur")
+    engine_fig.update_layout(height=350, plot_bgcolor=plot_bg, paper_bgcolor=plot_bg, font=dict(color=axis_color))
 
-            heatmap = px.density_heatmap(
-                df,
-                x=df.index,
-                y="temperature",
-                z="anomaly_numeric",
-                nbinsx=30,
-            )
+    st.plotly_chart(engine_fig, use_container_width=True)
 
-            st.plotly_chart(heatmap, use_container_width=True)
+else:
+    st.info("Aucune donnée disponible.")
 
-            st.markdown("---")
-
-            # ================= Performance simulée =================
-            st.header("Comparaison Performance Simulée")
-
-            pandas_perf = np.random.uniform(0.1, 0.5)
-            spark_perf = np.random.uniform(0.05, 0.3)
-
-            perf_df = pd.DataFrame({
-                "Moteur": ["Pandas", "Spark"],
-                "Temps (s)": [pandas_perf, spark_perf]
-            })
-
-            perf_fig = px.bar(
-                perf_df,
-                x="Moteur",
-                y="Temps (s)",
-            )
-
-            st.plotly_chart(perf_fig, use_container_width=True)
-
-    time.sleep(2)
+time.sleep(refresh_rate)
+st.rerun()

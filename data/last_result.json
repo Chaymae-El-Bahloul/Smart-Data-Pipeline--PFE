@@ -1,7 +1,1 @@
-{
-    "id": 841,
-    "temperature": 22.5,
-    "mode": "NORMAL",
-    "engine": "pandas",
-    "processed_value": 45.0
-}
+{"device": "device_3", "temperature": 20.459822035426484, "humidity": 45.758462226680564, "ts": 1772833793.451686, "anomaly": 0, "engine": "Pandas"}

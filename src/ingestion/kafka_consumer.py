@@ -1,54 +1,86 @@
-from kafka import KafkaConsumer
 import json
+import time
+import numpy as np
 import os
-import tempfile
+from kafka import KafkaConsumer
+from sklearn.ensemble import IsolationForest
 
-consumer = KafkaConsumer(
-    'pfe-data',
-    bootstrap_servers='localhost:9092',
-    auto_offset_reset='earliest',
-    enable_auto_commit=True,
-    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
-)
+BASE_DIR = "/app"
+DATA_DIR = os.path.join(BASE_DIR, "data")
 
-history_file = "data/history.json"
+os.makedirs(DATA_DIR, exist_ok=True)
 
-if not os.path.exists(history_file):
-    with open(history_file, "w") as f:
-        json.dump([], f)
+history_file = os.path.join(DATA_DIR, "history.json")
+result_file = os.path.join(DATA_DIR, "last_result.json")
 
-for message in consumer:
-    data = message.value
+# -----------------------------
+# RETRY CONNECTION TO KAFKA
+# -----------------------------
+while True:
+    try:
+        consumer = KafkaConsumer(
+            "pfe-data",
+            bootstrap_servers="kafka:9092",
+            auto_offset_reset="earliest",
+            group_id="iot-group",
+            enable_auto_commit=True,
+            value_deserializer=lambda x: json.loads(x.decode("utf-8"))
+        )
+        print("Connected to Kafka")
+        break
+    except Exception as e:
+        print("Kafka not ready:", e)
+        time.sleep(5)
 
-    temperature = data["value"]
-    data["temperature"] = temperature
+model = IsolationForest(contamination=0.05, random_state=42)
 
-    if temperature < 25:
-        data["engine"] = "Pandas"
-        data["metric_used"] = "Low Temperature"
-    else:
-        data["engine"] = "Spark"
-        data["metric_used"] = "High Temperature"
-
-    data["anomaly"] = temperature > 30
-
+# -----------------------------
+# LOAD HISTORY
+# -----------------------------
+if os.path.exists(history_file):
     try:
         with open(history_file, "r") as f:
             history = json.load(f)
-            if not isinstance(history, list):
-                history = []
     except:
         history = []
+else:
+    history = []
 
-    history.append(data)
+print("Consumer started...")
 
+# -----------------------------
+# CONSUME LOOP
+# -----------------------------
+for message in consumer:
     try:
-        with tempfile.NamedTemporaryFile("w", delete=False) as tmp:
-            json.dump(history, tmp)
-            temp_name = tmp.name
+        data = message.value
+        temperature = data["temperature"]
+        anomaly = 0
 
-        os.replace(temp_name, history_file)
+        if len(history) > 20:
+            train_data = np.array(
+                [h["temperature"] for h in history]
+            ).reshape(-1, 1)
+
+            model.fit(train_data)
+
+            prediction = model.predict(
+                np.array([[temperature]])
+            )
+            anomaly = int(prediction[0] == -1)
+
+        data["anomaly"] = anomaly
+        data["engine"] = "Pandas" if temperature < 25 else "Spark"
+
+        history.append(data)
+
+        with open(history_file, "w") as f:
+            json.dump(history, f)
+
+        with open(result_file, "w") as f:
+            json.dump(data, f)
+
+        print("Processed and saved:", data)
+
     except Exception as e:
-        print("Erreur écriture:", e)
-
-    print("Processed:", data)
+        print("Error processing message:", e)

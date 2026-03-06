@@ -1,30 +1,44 @@
 import json
-import pandas as pd
 import time
+import random
 from kafka import KafkaProducer
 
-producer = KafkaProducer(
-    bootstrap_servers="localhost:9092",
-    value_serializer=lambda v: json.dumps(v).encode("utf-8")
-)
+# -----------------------------
+# RETRY CONNECTION
+# -----------------------------
+while True:
+    try:
+        producer = KafkaProducer(
+            bootstrap_servers='kafka:9092',
+            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+        )
+        print("Connected to Kafka")
+        break
+    except Exception:
+        print("Kafka not ready, retrying in 5 seconds...")
+        time.sleep(5)
 
-print("Lecture du dataset IoT...")
+print("Producer started...")
 
-df = pd.read_csv("data/iot_telemetry_data.csv")
+devices = ["device_1", "device_2", "device_3"]
 
-print("Colonnes détectées :", df.columns)
+while True:
+    temperature = random.uniform(18, 30)
 
-for i, row in df.iterrows():
+    # 5% anomaly
+    if random.random() < 0.05:
+        temperature = random.uniform(35, 45)
+
     message = {
-        "id": int(i),
-        "value": float(row["temp"])
+        "device": random.choice(devices),
+        "temperature": temperature,
+        "humidity": random.uniform(30, 70),
+        "ts": time.time()
     }
 
-    producer.send("pfe-data", message)
-    print("Message envoyé :", message)
+    producer.send("pfe-data", value=message)
+    producer.flush()
 
-    time.sleep(0.5)
+    print("Sent:", message)
 
-producer.flush()
-print("Envoi terminé.")
-
+    time.sleep(1)

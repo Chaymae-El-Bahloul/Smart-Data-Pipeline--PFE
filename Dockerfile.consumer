@@ -1,0 +1,12 @@
+FROM python:3.10
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install --no-cache-dir --default-timeout=100 \
+    kafka-python \
+    numpy \
+    scikit-learn
+
+CMD ["python", "src/ingestion/kafka_consumer.py"]

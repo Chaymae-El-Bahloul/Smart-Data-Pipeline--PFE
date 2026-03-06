@@ -1,0 +1,11 @@
+FROM python:3.10
+
+WORKDIR /app
+
+COPY requirements_producer.txt .
+
+RUN pip install --no-cache-dir --default-timeout=100 -r requirements_producer.txt
+
+COPY . .
+
+CMD ["python", "src/ingestion/kafka_producer.py"]
