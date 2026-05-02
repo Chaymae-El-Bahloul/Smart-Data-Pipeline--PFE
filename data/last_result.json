@@ -1,1 +1,1 @@
-{"device": "device_3", "temperature": 20.459822035426484, "humidity": 45.758462226680564, "ts": 1772833793.451686, "anomaly": 0, "engine": "Pandas"}
+{"device": "device_1", "temperature": 26.40103847649048, "humidity": 64.0914771837593, "ts": 1777751057.1330183, "anomaly": 0, "engine": "Spark"}

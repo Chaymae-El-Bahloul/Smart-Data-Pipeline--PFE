@@ -1,6 +1,10 @@
 version: "3.8"
 
 services:
+
+  # =========================
+  # KAFKA
+  # =========================
   kafka:
     image: apache/kafka:3.7.0
     container_name: kafka
@@ -10,21 +14,17 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
 
-      # LISTENERS
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
 
-      # KRaft Controller Config
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
 
-      # Storage
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       KAFKA_CLUSTER_ID: 5L6g3nShT-eMCtK--X86sw
 
-      # Recommended stability settings
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
@@ -32,6 +32,9 @@ services:
     networks:
       - kafka_network
 
+  # =========================
+  # PRODUCER
+  # =========================
   producer:
     build:
       context: .
@@ -45,6 +48,9 @@ services:
     networks:
       - kafka_network
 
+  # =========================
+  # CONSUMER (IMPORTANT CHANGE)
+  # =========================
   consumer:
     build:
       context: .
@@ -55,9 +61,14 @@ services:
     volumes:
       - .:/app
     working_dir: /app
+    ports:
+      - "8000:8000"   # REQUIRED for Prometheus
     networks:
       - kafka_network
 
+  # =========================
+  # STREAMLIT APP (FIXED BUG)
+  # =========================
   app:
     build:
       context: .
@@ -74,6 +85,53 @@ services:
     networks:
       - kafka_network
 
+  # =========================
+  # PROMETHEUS
+  # =========================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    depends_on:
+      - consumer
+    networks:
+      - kafka_network
+    restart: unless-stopped
+
+  # =========================
+  # GRAFANA
+  # =========================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_PANELS_DISABLE_SANITIZE_HTML=true
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - kafka_network
+    restart: unless-stopped
+
+# =========================
+# VOLUMES
+# =========================
+volumes:
+  prometheus-data:
+  grafana-data:
+
+# =========================
+# NETWORK
+# =========================
 networks:
   kafka_network:
     driver: bridge

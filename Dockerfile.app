@@ -1,14 +1,18 @@
-FROM python:3.10
+FROM python:3.10-slim
 
 WORKDIR /app
 
 COPY . .
 
-RUN pip install --no-cache-dir --default-timeout=100 --prefer-binary \
+# Upgrade pip + fix network/hash issues + faster install
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir --default-timeout=200 \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
     streamlit \
     streamlit-autorefresh \
     pandas \
-    numpy \
+    numpy==1.26.4 \
     matplotlib \
     seaborn \
     plotly \

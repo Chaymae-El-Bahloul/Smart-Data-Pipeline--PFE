@@ -1,12 +1,17 @@
-FROM python:3.10
+FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY . .
+COPY requirements.txt .
 
-RUN pip install --no-cache-dir --default-timeout=100 \
-    kafka-python \
-    numpy \
-    scikit-learn
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir \
+    --default-timeout=300 \
+    --retries=10 \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -r requirements.txt
+
+COPY . .
 
 CMD ["python", "src/ingestion/kafka_consumer.py"]
