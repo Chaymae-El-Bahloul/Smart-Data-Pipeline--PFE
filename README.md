@@ -51,7 +51,7 @@
 | **Auteures** | BOUDALLAA Samah · EL BAHLOUL Chaymae · EL BASRI Khadija |
 | **Encadrant pédagogique** | Pr. Anas Berka |
 | **Examinateur** | Pr. Soufiane Mouchtabih |
-| **Code source** | [github.com/Samah-boudallaa/smart-data-pipeline-pfe](https://github.com/Samah-boudallaa/smart-data-pipeline-pfe) (privé) |
+| **Code source** | [github.com/Samah-boudallaa/smart-data-pipeline-pfe](https://github.com/Samah-boudallaa/smart-data-pipeline-pfe) |
 
 ### Points clés du projet
 
