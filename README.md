@@ -1,21 +1,23 @@
 # Smart Data Pipeline
 
-**Conception et Implémentation d'un Pipeline de Données Intelligent et Auto-Adaptatif pour la Gestion Dynamique des Flux de Données**
+**Conception et implémentation d'un pipeline de données intelligent et auto-adaptatif pour la gestion dynamique des flux de données**
 
 [![PFE](https://img.shields.io/badge/Projet-Fin%20d'%C3%A9tudes-blue)]()
 [![Statut](https://img.shields.io/badge/Statut-Termin%C3%A9-success)]()
 [![Docker](https://img.shields.io/badge/Deploy-Docker%20Compose-2496ED)]()
-[![License](https://img.shields.io/badge/License-Acad%C3%A9mique-lightgrey)]()
+[![Python](https://img.shields.io/badge/Python-3.10-3776AB)]()
+[![Kafka](https://img.shields.io/badge/Kafka-3.7.0%20KRaft-231F20)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> Plateforme intelligente de monitoring de flux de données IoT en temps réel, capable de **basculer automatiquement entre Pandas et Spark** selon le volume de données, de **détecter les anomalies** par Machine Learning (Isolation Forest), et de fournir une **double couche de visualisation** : un dashboard métier (Streamlit) et une supervision technique professionnelle (Prometheus + Grafana).
+> Plateforme de monitoring de flux IoT en temps réel qui **bascule automatiquement entre Pandas et Spark** selon la charge, **détecte les anomalies** par Machine Learning (Isolation Forest) et offre une **double visualisation** : un dashboard métier (Streamlit) et une supervision technique (Prometheus + Grafana).
 
 ---
 
 ## Sommaire
 
 - [Présentation](#présentation)
-- [Contexte du projet](#contexte-du-projet)
-- [Problématique](#problématique)
+- [Démarrage rapide](#démarrage-rapide)
+- [Contexte et problématique](#contexte-et-problématique)
 - [Notions de base](#notions-de-base)
 - [État de l'art](#état-de-lart)
 - [Architecture du système](#architecture-du-système)
@@ -34,73 +36,91 @@
 - [Dataset utilisé](#dataset-utilisé)
 - [Perspectives](#perspectives)
 - [Bibliographie](#bibliographie)
+- [Licence](#licence)
+- [Comment citer ce projet](#comment-citer-ce-projet)
 - [Auteures & encadrement](#auteures--encadrement)
 
 ---
 
 ## Présentation
 
-**Smart Data Pipeline** est un projet de fin d'études (PFE) de la filière DUT Ingénierie des Données, réalisé à l'**EST El Kelâa des Sraghna — Université Cadi Ayyad**. Le projet porte sur la conception d'une plateforme intelligente capable d'ingérer, traiter, analyser et visualiser un flux de données IoT en temps réel, tout en s'adaptant dynamiquement à la charge entrante.
+**Smart Data Pipeline** est un projet de fin d'études (PFE) de la filière DUT Ingénierie des Données, réalisé à l'**EST El Kelâa des Sraghna — Université Cadi Ayyad**. Il consiste à concevoir une plateforme capable d'ingérer, traiter, analyser et visualiser un flux de données IoT en temps réel, tout en s'adaptant dynamiquement à la charge entrante.
 
 | | |
 |---|---|
 | **Type** | Projet de Fin d'Études (PFE) |
-| **Soutenance** | 16 Juin 2026 |
+| **Soutenance** | 16 juin 2026 |
 | **Établissement** | EST El Kelâa des Sraghna — Université Cadi Ayyad |
 | **Filière** | DUT Ingénierie des Données |
 | **Auteures** | BOUDALLAA Samah · EL BAHLOUL Chaymae · EL BASRI Khadija |
 | **Encadrant pédagogique** | Pr. Anas Berka |
 | **Examinateur** | Pr. Soufiane Mouchtabih |
 | **Code source** | [github.com/Samah-boudallaa/smart-data-pipeline-pfe](https://github.com/Samah-boudallaa/smart-data-pipeline-pfe) |
+| **Licence** | [MIT](LICENSE) |
 
-### Points clés du projet
+### Points clés
 
 | Caractéristique | Détail |
 |---|---|
 | Moteur adaptatif | Bascule automatique **Pandas ↔ Spark** selon le volume |
 | Détection d'anomalies | **Isolation Forest** (Machine Learning) |
 | Ingestion | **Apache Kafka 3.7.0** (mode KRaft) |
-| Dashboard métier | **Streamlit** (port 8501) — thème clair/sombre |
+| Dashboard métier | **Streamlit** (port 8501), thème clair/sombre |
 | Supervision technique | **Prometheus** (port 9090) + **Grafana** (port 3000) |
-| Déploiement | **Docker Compose** — une seule commande |
-| Dataset | IoT Telemetry Data (Kaggle, ~132K mesures) |
+| Déploiement | **Docker Compose**, une seule commande |
+| Dataset | IoT Telemetry Data (Kaggle) |
 | Latence d'ingestion | **< 100 ms** en local |
 | Taux d'anomalies observé | **4–5 %** du flux entrant |
 | Durée moyenne de traitement | **< 500 ms** par message |
 
 ---
 
-## Contexte du projet
+## Démarrage rapide
 
-### Introduction générale
+```bash
+git clone https://github.com/Samah-boudallaa/smart-data-pipeline-pfe.git
+cd smart-data-pipeline-pfe
+docker-compose up --build
+```
 
-L'explosion des données numériques générées par les entreprises, réseaux sociaux, systèmes IoT et applications web a conduit à une croissance exponentielle du volume d'informations à traiter — au cœur du phénomène **Big Data**. Les systèmes traditionnels montrent leurs limites face à ces besoins en termes de **scalabilité**, de **latence** et de **traitement en temps réel**.
+Une fois les conteneurs démarrés :
 
-Les pipelines classiques, souvent **statiques**, sont peu adaptés aux variations de charge, entraînant dégradation des performances et mauvaise utilisation des ressources.
+| Service | URL |
+|---|---|
+| Dashboard Streamlit | http://localhost:8501 |
+| Prometheus | http://localhost:9090 |
+| Grafana | http://localhost:3000 |
+| Métriques brutes du consumer | http://localhost:8000/metrics |
 
-### Problématique
+Pour arrêter la plateforme : `docker-compose down`.
+
+---
+
+## Contexte et problématique
+
+L'explosion des données générées par les entreprises, les réseaux sociaux, les systèmes IoT et les applications web a entraîné une croissance exponentielle des volumes à traiter, au cœur du phénomène **Big Data**. Les systèmes traditionnels atteignent leurs limites en matière de **scalabilité**, de **latence** et de **traitement en temps réel**. Les pipelines classiques, souvent **statiques**, s'adaptent mal aux variations de charge : performances dégradées et ressources mal utilisées.
 
 > **Comment concevoir un pipeline capable de s'adapter automatiquement aux variations des flux tout en garantissant des performances stables ?**
 
-Le projet vise à concevoir un **pipeline intelligent et auto-adaptatif**, capable de gérer efficacement des flux dynamiques tout en maintenant des performances optimales.
+Le projet répond à cette question par un **pipeline intelligent et auto-adaptatif**, capable de gérer des flux dynamiques tout en maintenant des performances optimales.
 
 ---
 
 ## Notions de base
 
-### Big Data — les 5V
+### Big Data : les 5V
 
 | V | Signification |
 |---|---|
-| **Volume** | quantité massive de données générées chaque jour |
-| **Vélocité** | vitesse de production et de traitement des données |
-| **Variété** | formats hétérogènes (structurées, semi-structurées, non structurées) |
-| **Véracité** | qualité et fiabilité des données |
-| **Valeur** | capacité à extraire des informations pertinentes |
+| **Volume** | Quantité massive de données générées chaque jour |
+| **Vélocité** | Vitesse de production et de traitement |
+| **Variété** | Formats hétérogènes (structurés, semi-structurés, non structurés) |
+| **Véracité** | Qualité et fiabilité des données |
+| **Valeur** | Capacité à en extraire des informations pertinentes |
 
-### Data Pipeline
+### Data pipeline
 
-Architecture permettant de **déplacer, transformer et stocker** des données automatiquement, depuis les sources jusqu'aux systèmes d'analyse. Composants principaux : sources de données (bases, APIs, capteurs), moteurs de traitement, systèmes de stockage/visualisation.
+Architecture qui **déplace, transforme et stocke** automatiquement les données, des sources jusqu'aux systèmes d'analyse. Ses composants principaux sont les sources (bases, APIs, capteurs), les moteurs de traitement et les systèmes de stockage/visualisation.
 
 ### Batch vs Streaming
 
@@ -110,159 +130,119 @@ Architecture permettant de **déplacer, transformer et stocker** des données au
 | Usage | Analytique | Temps réel |
 | Complexité | Moyenne | Élevée |
 
-> Dans ce projet, le **streaming** est privilégié afin de répondre aux exigences de réactivité.
+> Ce projet privilégie le **streaming** pour répondre aux exigences de réactivité.
 
 ### Pipelines intelligents et auto-adaptatifs
 
-Un pipeline intelligent analyse son propre fonctionnement et ajuste automatiquement ses paramètres selon les métriques observées :
+Un pipeline intelligent analyse son propre fonctionnement et ajuste ses paramètres selon les métriques observées :
 
-- **Collecte de métriques** : latence, débit, taux d'erreur
-- **Comparaison avec des objectifs de service** (SLA/SLO)
-- **Ajustement automatique** des ressources et configurations
+- **collecte de métriques** : latence, débit, taux d'erreur ;
+- **comparaison avec des objectifs de service** (SLA/SLO) ;
+- **ajustement automatique** des ressources et des configurations.
 
 ---
 
 ## État de l'art
 
-### Comparaison des architectures de traitement
+### Architectures de traitement
 
 | Architecture | Principe | Exemple / Créateur | Avantages | Inconvénients | Adaptée pour |
 |---|---|---|---|---|---|
-| **Batch** | Traitement différé en lots | Hadoop | Traitement massif, robustesse | Latence élevée, non temps réel | Analyses historiques, reporting |
-| **Lambda** | Batch + temps réel + couche de service | Nathan Marz | Précision, faible latence | Complexité, maintenance lourde | Systèmes nécessitant précision + rapidité |
-| **Kappa** | Traitement continu uniquement (streaming) | Jay Kreps / Apache Kafka | Simplicité, cohérence, temps réel | Moins adapté aux volumes historiques massifs | Applications temps réel, événements |
+| **Batch** | Traitement différé en lots | Hadoop | Traitement massif, robustesse | Latence élevée, pas de temps réel | Analyses historiques, reporting |
+| **Lambda** | Batch + temps réel + couche de service | Nathan Marz | Précision, faible latence | Complexité, maintenance lourde | Précision + rapidité |
+| **Kappa** | Streaming uniquement | Jay Kreps / Apache Kafka | Simplicité, cohérence, temps réel | Moins adapté aux gros volumes historiques | Applications temps réel, événements |
 
-### Plateformes et outils retenus
+### Outils retenus
 
 | Outil | Rôle | Avantages | Limites |
 |---|---|---|---|
-| **Apache Kafka** | Streaming distribué (Producer → Broker → Consumer) | Haute scalabilité, tolérance aux pannes, faible latence | Complexité de configuration |
-| **Apache Spark** | Traitement distribué (Core, SQL, Streaming, MLlib) | Traitement rapide en mémoire, agrégations massives | Consommation mémoire élevée |
-| **pandas** | Manipulation de données tabulaires Python | Simple, rapide pour petits volumes | Non distribué |
-| **Stream Processing** | Analyse dès l'arrivée des données | Latence faible, traitement événementiel | Nécessite infrastructure streaming |
-| **Streamlit** | Visualisation interactive métier | Développement rapide, interface intuitive | Non adapté aux très gros datasets |
-| **Prometheus** | Collecte de métriques en séries temporelles | Léger, scraping HTTP natif, PromQL puissant | Métriques numériques uniquement |
-| **Grafana** | Visualisation et dashboards de métriques | Dashboards interactifs, alertes configurables | Nécessite une source externe |
-| **Docker** | Conteneurisation et déploiement | Portabilité, isolation, reproductibilité | Apprentissage des conteneurs requis |
+| **Apache Kafka** | Streaming distribué (Producer → Broker → Consumer) | Scalabilité, tolérance aux pannes, faible latence | Configuration complexe |
+| **Apache Spark** | Traitement distribué (Core, SQL, Streaming, MLlib) | Rapide en mémoire, agrégations massives | Forte consommation mémoire |
+| **pandas** | Manipulation de données tabulaires | Simple, rapide sur petits volumes | Non distribué |
+| **Streamlit** | Visualisation interactive métier | Développement rapide, interface intuitive | Peu adapté aux très gros datasets |
+| **Prometheus** | Collecte de métriques en séries temporelles | Léger, scraping HTTP natif, PromQL | Métriques numériques uniquement |
+| **Grafana** | Dashboards de métriques | Interactif, alertes configurables | Nécessite une source externe |
+| **Docker** | Conteneurisation | Portabilité, isolation, reproductibilité | Courbe d'apprentissage |
 
 ### Positionnement du projet
 
-Le projet adopte :
-- Une architecture inspirée du **modèle Kappa**
-- **Kafka** pour l'ingestion
-- Un **moteur adaptatif** (Pandas ou Spark)
-- **Streamlit** pour la visualisation métier
-- **Prometheus et Grafana** pour la supervision technique
-- **Docker** pour la conteneurisation
-
-Réponses aux exigences : temps réel, modularité, évolutivité, observabilité, simplicité d'exploitation.
+Architecture inspirée du **modèle Kappa** : Kafka pour l'ingestion, un **moteur adaptatif** (Pandas ou Spark), Streamlit pour la visualisation métier, Prometheus et Grafana pour la supervision, Docker pour le déploiement. Elle répond aux exigences de temps réel, modularité, évolutivité, observabilité et simplicité d'exploitation.
 
 ---
 
 ## Architecture du système
 
-L'architecture est organisée en couches fonctionnelles assurant le cycle de vie complet des données : **ingestion → traitement → analyse → stockage → visualisation → supervision**.
+Le cycle de vie des données est organisé en couches : **ingestion → traitement → analyse → stockage → visualisation → supervision**.
 
+```mermaid
+flowchart TD
+    A["Capteurs IoT simulés<br/>(dataset Kaggle)"] --> B["Producer Python"]
+    B --> C[("Kafka<br/>topic")]
+    C --> D["Consumer Python"]
+    D --> E{"Moteur adaptatif"}
+    E -->|petits volumes| F["pandas"]
+    E -->|gros volumes| G["Apache Spark"]
+    F --> H["Isolation Forest<br/>(détection d'anomalies)"]
+    G --> H
+    H --> I[("history.json")]
+    I --> J["Streamlit :8501<br/>dashboard métier"]
+    D -->|":8000/metrics"| K["Prometheus :9090"]
+    K --> L["Grafana :3000<br/>supervision technique"]
 ```
-IoT Sensors / Web Apps / Social Media / Databases
-                    │
-                    ▼
-              Kafka (Ingestion)
-                    │
-                    ▼
-        Adaptive Processing Engine
-        ┌─────────────────────────┐
-        │  Apache Spark (Stream/Batch) │
-        │  pandas (Data Analysis)      │
-        └─────────────────────────┘
-                    │
-                    ▼
-       Visualization & Monitoring
-   ┌────────────┬────────────┬────────────┐
-   │ Streamlit  │ Prometheus │  Grafana   │
-   │ (Dashboards)│ (Metrics) │(Monitoring)│
-   └────────────┴────────────┴────────────┘
-                    │
-                    ▼
-          Docker (Conteneurisation)
-```
+
+Tous les services sont conteneurisés et orchestrés par Docker Compose.
 
 ### Sources de données
 
-Les données proviennent d'une **simulation de capteurs IoT** basée sur le dataset public **IoT Telemetry Data** (Kaggle) — température, humidité, pression atmosphérique, monoxyde de carbone (CO), fumée et GPL, enregistrées à intervalles réguliers. Les données sont générées sous forme de **messages JSON**, transmis par un script Python jouant le rôle de producteur.
+Les données proviennent d'une **simulation de capteurs IoT** basée sur le dataset public **IoT Telemetry Data** (Kaggle) : température, humidité, monoxyde de carbone (CO), fumée, GPL, lumière et mouvement. Elles sont émises sous forme de **messages JSON** par un script Python jouant le rôle de producteur.
 
 ---
 
 ## Couche d'ingestion — Kafka
 
-La couche d'ingestion reçoit et distribue les flux de données. Les messages sont publiés dans un **topic Kafka**, ce qui permet :
-
-- de gérer un flux continu de données,
-- de découpler producteurs et consommateurs,
-- d'assurer une transmission fiable des messages.
-
-Un **consumer Kafka** développé en Python récupère les données publiées et les transmet aux modules de traitement, garantissant un traitement **asynchrone et scalable**.
+Les messages sont publiés dans un **topic Kafka**, ce qui permet de gérer un flux continu, de **découpler producteurs et consommateurs** et d'assurer une transmission fiable. Un **consumer Python** récupère les messages et les transmet aux modules de traitement, pour un traitement **asynchrone et scalable**.
 
 ---
 
 ## Couche de traitement adaptatif
 
-Deux moteurs de traitement permettent d'adapter dynamiquement le système au volume de données reçu.
-
 ### Moteur Pandas (petits volumes)
 
-- Nettoyage des données
-- Transformation des variables
-- Calcul de statistiques simples
-- Préparation des données pour l'analyse
+Nettoyage, transformation des variables, statistiques simples, préparation pour l'analyse.
 
 ### Moteur Spark (gros volumes)
 
-- Traitement de volumes importants
-- Calculs distribués
-- Amélioration de la scalabilité
+Traitement de volumes importants, calculs distribués, meilleure scalabilité.
 
 ### Moteur d'adaptation intelligent
 
-Un module de décision automatique analyse :
+Un module de décision analyse le **volume de données**, la **fréquence d'arrivée des messages** et les **performances du traitement**, puis sélectionne automatiquement le moteur le plus approprié.
 
-- le **volume de données**,
-- la **fréquence d'arrivée des messages**,
-- les **performances du traitement**,
-
-et sélectionne automatiquement le moteur le plus approprié.
-
-### Résultats du traitement adaptatif
-
-| Volume de données | Moteur sélectionné | Temps moyen de traitement |
+| Volume de données | Moteur sélectionné | Comportement observé |
 |---|---|---|
 | < 10 000 lignes | Pandas | Très rapide (< 1 s) |
 | > 50 000 lignes | Spark | Plus stable et scalable |
+
+> Entre 10 000 et 50 000 lignes, le choix dépend de la fréquence d'arrivée et des performances mesurées.
 
 ---
 
 ## Détection d'anomalies — Isolation Forest
 
-Un module d'analyse basé sur l'algorithme **Isolation Forest** (Machine Learning) permet :
-
-- d'identifier des comportements inhabituels,
-- de détecter des valeurs aberrantes dans les flux,
-- d'améliorer la surveillance des systèmes IoT.
-
-Les résultats sont ajoutés aux données traitées et exploités par le module de visualisation. Les données enrichies sont stockées dans un fichier **JSON historique** (`history.json`), mis à jour dynamiquement à chaque analyse.
+Un module basé sur **Isolation Forest** (Machine Learning, non supervisé) permet d'identifier des comportements inhabituels et des valeurs aberrantes dans le flux IoT. Les variables d'entrée sont `temp`, `humidity`, `co`, `lpg` et `smoke`. Les résultats sont ajoutés aux données traitées et stockés dans un fichier JSON historique (`history.json`), mis à jour à chaque analyse.
 
 ---
 
 ## Visualisation métier — Streamlit
 
-L'application **Streamlit** (port **8501**) constitue le tableau de bord interactif métier permettant de :
+Le tableau de bord (port **8501**) permet de :
 
-- afficher les données reçues en temps réel,
-- visualiser les statistiques générées par le pipeline,
-- détecter visuellement les anomalies,
-- basculer entre thème **sombre** et **clair**,
-- configurer l'intervalle de rafraîchissement et la sensibilité de détection des anomalies,
-- confirmer la réinitialisation des données.
+- afficher les données reçues en temps réel ;
+- visualiser les statistiques générées par le pipeline ;
+- repérer visuellement les anomalies ;
+- basculer entre thème **sombre** et **clair** ;
+- régler l'intervalle de rafraîchissement et la sensibilité de détection ;
+- réinitialiser les données (avec confirmation).
 
 ---
 
@@ -270,87 +250,63 @@ L'application **Streamlit** (port **8501**) constitue le tableau de bord interac
 
 ### Prometheus (port 9090)
 
-Le consumer expose un endpoint HTTP (`:8000/metrics`) via la bibliothèque `prometheus_client`, scrapé toutes les **15 secondes**. Métriques exposées :
+Le consumer expose `:8000/metrics` via `prometheus_client`, scrapé toutes les **15 secondes**.
 
 | Métrique | Description |
 |---|---|
 | `kafka_messages_total` | Nombre total de messages reçus depuis Kafka |
-| `anomalies_total` | Nombre total d'anomalies détectées par Isolation Forest |
-| `iot_temperature_celsius` | Dernière valeur de température reçue |
-| `taux_anomalies_percent` | Pourcentage d'anomalies sur les 100 derniers messages |
+| `anomalies_total` | Nombre total d'anomalies détectées |
+| `iot_temperature_celsius` | Dernière température reçue |
+| `taux_anomalies_percent` | % d'anomalies sur les 100 derniers messages |
 | `moteur_traitement` | Moteur actif (0 = Pandas, 1 = Spark) |
-| `historique_taille` | Nombre d'enregistrements dans le fichier historique |
+| `historique_taille` | Nombre d'enregistrements dans l'historique |
 | `traitement_duree_secondes` | Durée de traitement de chaque message |
-| `kafka_connection_status` | État de la connexion au broker Kafka |
+| `kafka_connection_status` | État de la connexion au broker (1 = connecté) |
 
 ### Grafana (port 3000)
 
-Connecté à Prometheus comme source de données, le dashboard se rafraîchit automatiquement toutes les **5 secondes** et présente :
+Grafana utilise Prometheus comme source de données et se rafraîchit toutes les **5 secondes**.
 
 | Panneau | Description |
 |---|---|
-| Statut Kafka | Indicateur binaire Connecté/Déconnecté avec code couleur |
-| Messages reçus | Compteur cumulatif de messages Kafka traités |
-| Anomalies détectées | Compteur total avec seuils colorés (vert/orange/rouge) |
-| Taux d'anomalies | Pourcentage avec alertes visuelles par seuils |
-| Moteur actif | Affiche Pandas ou Spark selon le basculement |
-| Température IoT (jauge) | Thermomètre circulaire, zones colorées 0–60 °C |
-| Évolution température | Série temporelle en degrés Celsius |
-| Taux messages/sec | Débit instantané via la fonction `rate()` de Prometheus |
-| Durée de traitement | Durée moyenne calculée à partir de l'histogramme |
+| Statut Kafka | Indicateur Connecté/Déconnecté |
+| Messages reçus | Compteur cumulatif |
+| Anomalies détectées | Compteur avec seuils colorés (vert/orange/rouge) |
+| Taux d'anomalies | Pourcentage avec alertes visuelles |
+| Moteur actif | Pandas ou Spark |
+| Température IoT | Jauge circulaire, zones colorées 0–60 °C |
+| Évolution température | Série temporelle en °C |
+| Taux messages/sec | Débit instantané via `rate()` |
+| Durée de traitement | Durée moyenne (histogramme) |
 
 ---
 
 ## Conteneurisation — Docker
-
-Chaque composant est encapsulé dans un **conteneur Docker**, ce qui permet d'isoler les services, d'assurer la portabilité et de faciliter la reproduction de l'environnement.
 
 | Conteneur | Rôle |
 |---|---|
 | Kafka | Gestion des flux de messages |
 | Spark | Traitement distribué |
 | Application Python | Traitement et analyse |
-| Streamlit | Interface utilisateur métier |
+| Streamlit | Interface métier |
 | Prometheus | Collecte des métriques |
-| Grafana | Visualisation des métriques système |
+| Grafana | Visualisation des métriques |
 
-L'ensemble est orchestré via **Docker Compose**, permettant de lancer toute la plateforme en une seule commande.
+L'ensemble est orchestré par **Docker Compose** : toute la plateforme démarre en une commande.
 
 ---
 
 ## Flux de données complet
 
-```
-IoT Sensors (Simulation Dataset)
-        │
-        ▼
-   Producer (Python)
-        │
-        ▼
-     Kafka (Topic)
-        │
-        ▼
- Moteur Adaptatif (Pandas / Spark) ──► Stockage (JSON)
-        │
-        ▼
-   Module IA (Anomalies)
-        │
-        ├──► Consumer ──► Streamlit (Dashboard)
-        │
-        └──► Prometheus ──► Grafana
-```
-
-**Étapes du pipeline :**
-
-1. Les capteurs IoT simulés génèrent des données → producteur Kafka
-2. Le producteur publie les messages dans un topic Kafka
-3. Le consommateur Kafka récupère les messages → module de traitement
-4. Le moteur adaptatif sélectionne Pandas ou Spark selon la charge
-5. Les données sont analysées par le module de détection d'anomalies (IA)
-6. Les résultats sont enregistrés dans un fichier JSON historique
-7. Streamlit lit ces données et les affiche dans un tableau de bord interactif
-8. Prometheus collecte les métriques exposées par le consumer et les transmet à Grafana
-9. Les métriques (messages traités, anomalies, température, durée de traitement) sont visualisées en temps réel dans Grafana
+1. Les capteurs IoT simulés génèrent des données, lues par le producteur Kafka.
+2. Le producteur publie les messages dans un topic Kafka.
+3. Le consommateur récupère les messages et les transmet au module de traitement.
+4. Le moteur adaptatif choisit Pandas ou Spark selon la charge.
+5. Le module Isolation Forest analyse les données.
+6. Les résultats sont enregistrés dans `history.json`.
+7. Streamlit lit l'historique et l'affiche dans le dashboard.
+8. Prometheus collecte les métriques du consumer et les met à disposition de Grafana.
+9. Grafana affiche en temps réel messages traités, anomalies, température et durée de traitement.
 
 ---
 
@@ -358,52 +314,42 @@ IoT Sensors (Simulation Dataset)
 
 ### Validation de l'ingestion
 
-- Messages reçus **sans perte**
-- Latence **< 100 ms** en local
-- Support de l'envoi simultané de plusieurs messages
+- messages reçus **sans perte** ;
+- latence **< 100 ms** en local ;
+- envoi simultané de plusieurs messages supporté.
 
-### Métriques observées en production (tests)
+### Métriques observées pendant les tests
 
 | Métrique | Valeur observée | Signification |
 |---|---|---|
 | `kafka_messages_total` | 28 400+ | Messages traités depuis le démarrage |
-| `anomalies_total` | 1 460+ | Anomalies détectées au total |
-| `taux_anomalies_percent` | 4–5 % | Taux stable et conforme aux attentes |
-| `iot_temperature_celsius` | 20–40 °C | Plage normale des capteurs IoT |
+| `anomalies_total` | 1 460+ | Anomalies détectées |
+| `taux_anomalies_percent` | 4–5 % | Taux stable, conforme aux attentes |
+| `iot_temperature_celsius` | 20–40 °C | Plage normale des capteurs |
 | `moteur_traitement` | 1 (Spark) | Basculement vers Spark confirmé |
 | `kafka_connection_status` | 1 | Connexion Kafka active |
 
 ### Performances de traitement
 
-- **Pandas** plus rapide pour les petits volumes
-- **Spark** plus performant à mesure que le volume augmente
-- Durée moyenne de traitement (`traitement_duree_secondes`) : **< 500 ms** pour la majorité des messages
+- **Pandas** est plus rapide sur les petits volumes ;
+- **Spark** devient plus performant à mesure que le volume augmente ;
+- durée moyenne de traitement **< 500 ms** pour la majorité des messages.
 
 ### Scalabilité
 
-Le système peut évoluer horizontalement grâce à :
-- la nature distribuée de Kafka,
-- le traitement parallèle de Spark,
-- la conteneurisation Docker.
+Le système peut évoluer horizontalement grâce à la nature distribuée de Kafka, au parallélisme de Spark et à la conteneurisation Docker.
 
 > Les tests ont été réalisés en environnement **local**, ce qui limite la simulation d'un cluster réel.
 
 ### Discussion
 
-1. L'architecture est **fonctionnelle et stable**
-2. Le système répond aux **exigences initiales**
-3. L'approche adaptative **améliore l'efficacité**
-4. Les conteneurs **simplifient le déploiement**
-5. Prometheus + Grafana apportent une **observabilité complète** du pipeline
+1. L'architecture est **fonctionnelle et stable**.
+2. Le système répond aux **exigences initiales**.
+3. L'approche adaptative **améliore l'efficacité**.
+4. Les conteneurs **simplifient le déploiement**.
+5. Prometheus + Grafana apportent une **observabilité complète** du pipeline.
 
-Comparativement à une architecture sans supervision, la solution offre : visibilité complète sur l'état interne, détection proactive des dysfonctionnements, traçabilité historique des métriques.
-
-### Apport du monitoring
-
-- **Observabilité** : toutes les métriques clés visibles en un seul endroit
-- **Réactivité** : rafraîchissement automatique (5 s) pour détecter rapidement toute dégradation
-- **Professionnalisme** : utilisation d'outils standards de l'industrie
-- **Extensibilité** : nouvelles métriques ajoutables facilement dans le consumer Python
+Par rapport à une architecture sans supervision, la solution offre une visibilité complète sur l'état interne, une détection proactive des dysfonctionnements et une traçabilité historique des métriques. L'usage d'outils standards de l'industrie rend le monitoring extensible : de nouvelles métriques s'ajoutent facilement dans le consumer.
 
 ---
 
@@ -417,18 +363,18 @@ Comparativement à une architecture sans supervision, la solution offre : visibi
 | Langage | Python 3.10 |
 | Bibliothèques | `kafka-python`, `pandas`, `pyspark`, `prometheus_client` |
 | Interface utilisateur | Streamlit (port 8501) |
-| Supervision | Prometheus (port 9090), Grafana (port 3000) |
+| Supervision | Prometheus (9090), Grafana (3000) |
 | Machine locale | 16 Go RAM, processeur i5 |
 
 ---
 
 ## Limites du système
 
-- Tests réalisés **uniquement en local**
-- Absence d'un **cluster Spark distribué réel**
-- Pas d'intégration avec une **base de données persistante**
-- **Sécurité non implémentée** (authentification Kafka)
-- Les **alertes Grafana** n'ont pas été configurées dans le cadre de ce projet
+- tests réalisés **uniquement en local** ;
+- absence de **cluster Spark distribué réel** ;
+- pas de **base de données persistante** (stockage JSON) ;
+- **sécurité non implémentée** (pas d'authentification Kafka) ;
+- **alertes Grafana** non configurées.
 
 ---
 
@@ -437,40 +383,36 @@ Comparativement à une architecture sans supervision, la solution offre : visibi
 ### Prérequis
 
 - Docker & Docker Compose
-- Python 3.10+ (pour exécution hors conteneur, si besoin)
+- Python 3.10+ (uniquement pour une exécution hors conteneur)
 
 ### Déploiement complet
 
 ```bash
-# 1. Cloner le dépôt
 git clone https://github.com/Samah-boudallaa/smart-data-pipeline-pfe.git
 cd smart-data-pipeline-pfe
-
-# 2. Lancer l'ensemble de la plateforme
 docker-compose up --build
 ```
 
-Cette commande initialise et démarre automatiquement :
-- le système de messagerie **Kafka**,
-- les services de **traitement des données** (producer, consumer, moteur adaptatif),
-- l'interface de visualisation **Streamlit**,
-- les outils de supervision **Prometheus** et **Grafana**.
-
-### Accès aux services
-
-| Service | URL |
-|---|---|
-| Dashboard métier (Streamlit) | http://localhost:8501 |
-| Prometheus | http://localhost:9090 |
-| Grafana | http://localhost:3000 |
-| Métriques brutes du consumer | http://localhost:8000/metrics |
+Cette commande démarre Kafka, les services de traitement (producer, consumer, moteur adaptatif), Streamlit, Prometheus et Grafana.
 
 ### Vérification rapide
+
+Dans Prometheus (http://localhost:9090), exécuter :
 
 ```promql
 up{job="smart-pipeline-consumer"}
 ```
-> Doit retourner la valeur `1`, confirmant que le service est correctement supervisé.
+
+Le résultat doit être `1`, ce qui confirme que le consumer est bien supervisé.
+
+### Dépannage
+
+| Problème | Piste de solution |
+|---|---|
+| Un port est déjà utilisé (8501, 9090, 3000, 8000) | Arrêter le service en conflit ou modifier le mapping de ports dans `docker-compose.yml` |
+| Le consumer ne se connecte pas à Kafka | Attendre le démarrage complet du broker, puis consulter `docker-compose logs consumer` |
+| Aucune donnée dans Grafana | Vérifier que la cible `smart-pipeline-consumer` est `UP` dans Prometheus (*Status → Targets*) |
+| Mémoire insuffisante avec Spark | Allouer davantage de RAM à Docker/WSL (16 Go utilisés pour les tests) |
 
 ---
 
@@ -478,77 +420,45 @@ up{job="smart-pipeline-consumer"}
 
 ```
 smart-data-pipeline-pfe/
-│
-├── data/                        # Données et dataset IoT
-│
-├── docs/                        # Documentation du projet
-│
-├── src/                         # Code source principal (producer, consumer,
-│                                 #   moteur adaptatif, détection d'anomalies)
-│
-├── .dockerignore                # Fichiers exclus de Docker
-├── .gitignore                   # Fichiers exclus de Git
-│
-├── Dockerfile.app                # Image Docker de l'application Streamlit
-├── Dockerfile.consumer           # Image Docker du consommateur Kafka
-├── Dockerfile.producer           # Image Docker du producteur Kafka
-│
-├── app.py                        # Application Streamlit (dashboard métier)
-├── docker-compose.yml            # Orchestration des conteneurs
-├── prometheus.yml                # Configuration de Prometheus
-├── requirements.txt              # Dépendances Python (app + consumer)
-├── requirements_producer.txt     # Dépendances Python (producteur)
-└── README.md                     # Documentation principale
+├── data/                         # Dataset IoT et fichiers JSON historiques
+├── docs/                         # Documentation (schémas d'architecture, notes)
+├── src/                          # Producer, consumer, moteur adaptatif, anomalies
+├── .dockerignore
+├── .gitignore
+├── Dockerfile.app                # Image du dashboard Streamlit
+├── Dockerfile.consumer           # Image du consommateur Kafka
+├── Dockerfile.producer           # Image du producteur Kafka
+├── app.py                        # Dashboard Streamlit
+├── docker-compose.yml            # Orchestration des services
+├── prometheus.yml                # Cibles de scraping Prometheus
+├── requirements.txt              # Dépendances (app + consumer)
+├── requirements_producer.txt     # Dépendances (producteur)
+├── LICENSE                       # Licence MIT
+└── README.md
 ```
 
-### Description des composants principaux
-
-| Fichier / Dossier | Description |
-|---|---|
-| `data/` | Dataset IoT Telemetry Data + fichiers JSON historiques générés |
-| `docs/` | Documentation technique (schémas d'architecture, notes) |
-| `src/` | Modules : producteur Kafka, consommateur, moteur adaptatif, détection d'anomalies |
-| `app.py` | Tableau de bord interactif Streamlit (visualisation métier temps réel) |
-| `prometheus.yml` | Configuration des cibles de scraping Prometheus |
-| `Dockerfile.app` | Image Docker du service applicatif (dashboard Streamlit) |
-| `Dockerfile.consumer` | Image Docker du consommateur Kafka |
-| `Dockerfile.producer` | Image Docker du producteur Kafka |
-| `docker-compose.yml` | Orchestration de l'ensemble des services, réseaux et volumes |
-| `requirements.txt` | Dépendances Python pour l'application et le consommateur |
-| `requirements_producer.txt` | Dépendances Python spécifiques au producteur Kafka |
-
-> **Historique de développement** : le dépôt compte **58 commits** répartis sur **2 branches**, témoignant d'un développement itératif et rigoureux mené via Git/GitHub.
+> Le dépôt compte **58 commits** sur **2 branches**, fruit d'un développement itératif mené via Git/GitHub.
 
 ---
 
 ## Dataset utilisé
 
-### IoT Telemetry Data (Kaggle)
-
-| Champ | Valeur |
-|---|---|
-| Nom | IoT Telemetry Data |
-| Source | Kaggle |
-| Format | CSV |
-| Nombre de colonnes | 9 |
-| Type de données | Mesures de capteurs IoT |
-| Lien | [kaggle.com/datasets/garystafford/environmental-sensor-data-132k](https://www.kaggle.com/datasets/garystafford/environmental-sensor-data-132k) |
-
-### Description des colonnes
+**IoT Telemetry Data** (Kaggle, Gary Stafford), au format CSV, 9 colonnes de mesures de capteurs.
+Lien : [kaggle.com/datasets/garystafford/environmental-sensor-data-132k](https://www.kaggle.com/datasets/garystafford/environmental-sensor-data-132k)
 
 | Colonne | Type | Description |
 |---|---|---|
-| `ts` | timestamp (float) | Horodatage Unix de la mesure |
-| `device` | string | Identifiant unique du capteur IoT |
-| `co` | float | Concentration en monoxyde de carbone (CO) |
-| `humidity` | float | Taux d'humidité relative (%) |
-| `light` | boolean | Présence ou absence de lumière ambiante |
-| `lpg` | float | Concentration en gaz de pétrole liquéfié (GPL) |
+| `ts` | float | Horodatage Unix de la mesure |
+| `device` | string | Identifiant du capteur |
+| `co` | float | Monoxyde de carbone |
+| `humidity` | float | Humidité relative (%) |
+| `light` | boolean | Présence de lumière ambiante |
+| `lpg` | float | Gaz de pétrole liquéfié (GPL) |
 | `motion` | boolean | Détection de mouvement |
 | `smoke` | float | Concentration en fumée |
-| `temp` | float | Température ambiante (°C) |
+| `temp` | float | Température (°C) |
 
-### Extrait du dataset
+### Extrait
 
 | device | temp | humidity | co | lpg | smoke | motion |
 |---|---|---|---|---|---|---|
@@ -558,21 +468,23 @@ smart-data-pipeline-pfe/
 
 ### Utilisation dans le pipeline
 
-- Les enregistrements CSV sont lus séquentiellement par le **producteur Kafka** pour simuler un flux continu
-- Les colonnes numériques (`temp`, `humidity`, `co`, `lpg`, `smoke`) alimentent le moteur de traitement adaptatif (Pandas/Spark)
-- Ces mêmes colonnes sont les variables d'entrée du modèle **Isolation Forest**
-- `temp` est exposée comme métrique Prometheus (`iot_temperature_celsius`) et visualisée dans Grafana
-- Les résultats enrichis sont stockés dans `history.json` et affichés sur le dashboard Streamlit
+- le producteur lit le CSV séquentiellement pour simuler un flux continu ;
+- `temp`, `humidity`, `co`, `lpg` et `smoke` alimentent le moteur adaptatif et le modèle Isolation Forest ;
+- `temp` est exposée à Prometheus (`iot_temperature_celsius`) et visualisée dans Grafana ;
+- les résultats enrichis sont stockés dans `history.json` et affichés dans Streamlit.
+
+> Le dataset reste soumis à sa propre licence, indiquée sur sa page Kaggle.
 
 ---
 
 ## Perspectives
 
-- **Auto-scalabilité** : intégration de **Kubernetes** pour gérer dynamiquement les conteneurs et améliorer la disponibilité
-- **Modèles IA avancés** : réseaux de neurones profonds ou modèles de détection d'anomalies plus sophistiqués
-- **Base de données distribuée** : Apache Cassandra ou Elasticsearch pour le stockage et l'analyse à grande échelle des données historiques
-- **Alertes automatiques Grafana** et analyse des tendances sur de longues périodes
-- **Application à des scénarios réels** : surveillance d'infrastructures IoT, Smart Cities, suivi de systèmes industriels
+- **Auto-scalabilité** avec **Kubernetes** pour gérer dynamiquement les conteneurs ;
+- **modèles IA avancés** : réseaux de neurones profonds, détection d'anomalies plus sophistiquée ;
+- **base de données distribuée** (Cassandra, Elasticsearch) pour l'historique à grande échelle ;
+- **alertes Grafana** automatiques et analyse de tendances sur de longues périodes ;
+- **sécurisation** de Kafka (authentification, chiffrement) ;
+- **scénarios réels** : infrastructures IoT, Smart Cities, systèmes industriels.
 
 ---
 
@@ -610,6 +522,28 @@ smart-data-pipeline-pfe/
 
 ---
 
+## Licence
+
+Ce projet est distribué sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour le texte complet.
+
+Vous pouvez utiliser, copier, modifier et redistribuer ce code, y compris à des fins commerciales, à condition de conserver la mention de copyright et de licence.
+
+---
+
+## Comment citer ce projet
+
+```bibtex
+@misc{boudallaa2026smartpipeline,
+  author       = {Boudallaa, Samah and El Bahloul, Chaymae and El Basri, Khadija},
+  title        = {Smart Data Pipeline : pipeline de données intelligent et auto-adaptatif},
+  year         = {2026},
+  howpublished = {\url{https://github.com/Samah-boudallaa/smart-data-pipeline-pfe}},
+  note         = {Projet de fin d'études, DUT Ingénierie des Données, EST El Kelâa des Sraghna, Université Cadi Ayyad}
+}
+```
+
+---
+
 ## Auteures & encadrement
 
 | Rôle | Nom |
@@ -620,9 +554,4 @@ smart-data-pipeline-pfe/
 | Encadrant pédagogique | Pr. Anas Berka — EST El Kelâa des Sraghna |
 | Examinateur | Pr. Soufiane Mouchtabih — EST El Kelâa des Sraghna |
 
-EST El Kelâa des Sraghna — Université Cadi Ayyad
-Filière DUT : Ingénierie des données
-
----
-
-*Année universitaire 2025–2026*
+EST El Kelâa des Sraghna — Université Cadi Ayyad · Filière DUT Ingénierie des Données · Année universitaire 2025–2026
